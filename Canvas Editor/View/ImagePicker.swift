@@ -17,7 +17,6 @@ struct ImagePicker: UIViewControllerRepresentable {
         return Coordinator(parent: self)
     }
     
-    
     func makeUIViewController(context: Context) -> PHPickerViewController {
         var config = PHPickerConfiguration()
         config.selectionLimit = 1

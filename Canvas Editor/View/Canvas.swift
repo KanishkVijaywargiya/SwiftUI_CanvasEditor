@@ -8,32 +8,20 @@
 import SwiftUI
 
 struct Canvas: View {
-    var height: CGFloat = 250
+    var height: CGFloat = 400
     @EnvironmentObject var vm: CanvasViewModel
     
     var body: some View {
         GeometryReader { geo in
             let size = geo.size
             
-            ZStack {
-                Color.white
-                ForEach($vm.stack) {$stackItem in
-                    CanvasSubView(stackItem: $stackItem) {
-                        stackItem.view
-                    } moveFront: {
-                        moveViewToFront(stackItem: stackItem)
-                    } onDelete: {
-                        // MARK: Showing alert if mistakenly tapped
-                        vm.currentlyTappedItem = stackItem
-                        vm.showDeleteAlert.toggle()
-                    }
-                }
-            }
-            .frame(width: size.width, height: size.height)
+            canvasView
+                .frame(width: size.width, height: size.height)
         }
         // MARK: Your desired height
         .frame(height: height)
         .clipped()
+        .padding()
         .alert("Are you sure to delete View?", isPresented: $vm.showDeleteAlert) {
             Button(role: .destructive) {
                 if let item = vm.currentlyTappedItem {
@@ -67,6 +55,7 @@ struct Canvas: View {
 struct Canvas_Previews: PreviewProvider {
     static var previews: some View {
         Home()
+        //Canvas().environmentObject(CanvasViewModel())
     }
 }
 
@@ -110,7 +99,7 @@ struct CanvasSubView<Content: View>: View {
                             moveFront()
                         })
                                    )
-            )
+            ) //MARK: tap gesture for delete & long press gesture for moving to front
             .gesture(
                 DragGesture()
                     .onChanged({ value in
@@ -142,5 +131,24 @@ struct CanvasSubView<Content: View>: View {
                             })
                                    )// MARK: Rotation gesture
             ) // MARK: Magnification gesture
+    }
+}
+
+extension Canvas {
+    private var canvasView: some View {
+        ZStack {
+            Color.white
+            ForEach($vm.stack) {$stackItem in
+                CanvasSubView(stackItem: $stackItem) {
+                    stackItem.view
+                } moveFront: {
+                    moveViewToFront(stackItem: stackItem)
+                } onDelete: {
+                    // MARK: Showing alert if mistakenly tapped
+                    vm.currentlyTappedItem = stackItem
+                    vm.showDeleteAlert.toggle()
+                }
+            }
+        }
     }
 }
